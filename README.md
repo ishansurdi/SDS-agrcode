@@ -2,6 +2,8 @@
 
 This project is a Farmers' Ecommerce Platform built using AngularJS. It allows users to buy and sell agricultural products, apply for subsidies, and access crop manuals.
 
+**Note:** This is not my personal code; it is just an example/demo code for a friend.
+
 ## Project Structure
 ### Files
 
