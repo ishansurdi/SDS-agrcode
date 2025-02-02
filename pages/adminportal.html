@@ -180,23 +180,47 @@
 app.controller('SubsidyController', function($scope) {
     // Initial subsidies data
     $scope.subsidies = [
-        {
-            name: 'PM Kisan Samman Nidhi',
-            amount: 6000,
-            description: 'Financial support for farmers',
-            eligibility: 'Small & marginal farmers',
-            category: 'Direct Benefit Transfer',
-            documents: 'Aadhar, Bank Passbook, Land Record',
-        },
-        {
-            name: 'Agriculture Infrastructure Fund',
-            amount: 200000,
-            description: 'Support for agricultural infrastructure',
-            eligibility: 'Farmers, FPOs, SHGs',
-            category: 'Loan Subsidy',
-            documents: 'Aadhar, Business Plan, Bank Details',
-        }
-    ];
+    {
+        name: 'Group Farming Scheme(Gat sheti Yojana)',
+        amount: 6000,
+        description: 'Guidance on the crop pattern and farming techniques.to help individual farmers to collectively shoulder the investment expenditure.',
+        eligibility: ' At least ten farmers.Small and marginal farmers. Residents of maharashtra.',
+        category: 'Agricultural Group farming Schemes.',
+        documents: 'Aadhar, Bank Details, Land Ownership Proof,Joint Farming Agreement',
+    },
+    {
+        name: 'Magel Tyala Shet Tale Yojana',
+        amount: 'Up to 50,000 - 75000',
+        description: 'Provide financial aid for farm pond construction to boost irrigation and crop yield. Helps store rainwater for irrigation in dry seasons',
+        eligibility: 'Resident of maharashtra.Land should be suitable for farm pond construction.',
+        category: 'Water Conservation & Irrigation Schemes.',
+        documents: 'Aadhar, Land Ownership Proof, Bank Details,Site Approval from Agriculture Department.',
+    },
+    {
+        name: 'Dr. Babasaheb Ambedkar Krushi Swavalamban Yojana(Agricultural Self-Reliance Scheme)',
+        amount: '100 % Subsidy limited to (1) New well - Rs. 250000/-, (2) Old well repairing - Rs. 50000/-, (3) Plastification of farm pond - Rs. 100000/-, (4) In well boring - Rs. 20000/-, (5) Pumpset -Rs. 25000/, (6) Electric connection charges - Rs. 10000/-, (7) Micro irrigation 90 % subsidy limited to - Drip Rs. 50000/- or Sprinkler - Rs. 25000/.',
+        description:'Promote self-reliance in farming through irrigation and financial aid.Helps in creating independent water sources.',
+        eligibility: 'Farmer must belong to the Scheduled Caste (SC) category.Must use the funds for approved agricultural development purposes.',
+        category: 'Agricultural Infrastructure & Irrigation Subsidy.',
+        documents: 'Aadhar,SC Caste Certificate,Land Ownership Proof, Bank Details',
+    },
+    {
+        name:'Seed Money Scheme',
+        amount: 'Loan of ₹50,000 to ₹1,00,000 for new businesses',
+        description: '15%-20% of the loan amount is covered by the government. Promotes agriculture-related startups.',
+        eligibility:'Age 18 to 50 years.Should be unemployed or seeking to start a business.Priority given to SC/ST, OBC, minority, and economically weaker sections',
+        category:'Self-Employment & Entrepreneurship Subsidy',
+        documents:'Aadhar,Caste Certificate(if applicable)'
+    },
+    {
+        name:'Birsa Munda Krishi Kranti Yojna',
+        amount: '100 % Subsidy limited to (1) New well - Rs. 250000/-, (2) Old well repairing - Rs. 50000/-, (3) Plastification of farm pond - Rs. 100000/-, (40 Inwell boaring - Rs. 20000/-, (5)Kitchen Garden - Rs. 500/-, (6) Electric connection charges - Rs. 10000/ (7) Micro irrigation 90 % subsidy limited to - Drip Rs. 50000/- or Sprinkler - Rs. 25000/. ',
+        description:'Provide irrigation facilities and increase the income of tribal farmers.Subsidy for drip and sprinkler irrigation systems.Funding for electric connections for irrigation.',
+        eligibility:'Farmer must belong to the Scheduled Tribe (ST) category.Annual family income should be less than ₹1,50,000.Land holding should be between 0.20 hectares to 6 hectares.Farmers from Mumbai, Sindhudurg, Ratnagiri, Satara, Sangli, and Kolhapur districts are not eligible.',
+        category: 'Agricultural Irrigation & Infrastructure Subsidy',
+        documents: 'Aadhaar Card, Land Ownership Proof ,Caste Certificate (for ST category),Bank Account Details,Income Certificate'
+    }
+];
 
     // Function to add new subsidy
     $scope.addSubsidy = function() {
