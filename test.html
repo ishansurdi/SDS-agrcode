@@ -229,14 +229,16 @@
     </header>
     <nav>
         <a ng-click="navigate('home')">Home</a>
-        <a ng-click="navigate('products')">Products</a>
+        <!-- <a ng-click="navigate('products')">Products</a>
         <a ng-click="navigate('subsidy')">Subsidy Info</a>
-        <a ng-click="navigate('cropManual')">Crop Manual</a>
+        <a ng-click="navigate('cropManual')">Crop Manual</a> -->
         <a ng-click="navigate('login')">Login</a>
         <a ng-click="navigate('register')">Register</a>
-        <a ng-click="navigate('sell')">Sell Products</a>
-        <a ng-click="navigate('cart')">Cart ({{ cart.length }})</a>
+        <!-- <a ng-click="navigate('sell')">Sell Products</a>
+        <a ng-click="navigate('cart')">Cart ({{ cart.length }})</a> -->
     </nav>
+
+    <!-- /* homepage content */ -->
 
     <div class="container">
         <div ng-show="currentPage === 'home'">
@@ -317,11 +319,15 @@
                 <input type="text" placeholder="Email" ng-model="registerEmail">
                 <label>Password:</label>
                 <input type="password" placeholder="Password" ng-model="registerPassword">
-                <label>Farm Name:</label>
-                <input type="text" placeholder="Farm Name" ng-show="registerRole === 'farmer'" ng-model="registerFarmName">
+                <!-- <label>Farm Name:</label>
+                <input type="text" placeholder="Farm Name" ng-show="registerRole === 'farmer'" ng-model="registerFarmName"> -->
                 <button ng-click="register()">Register</button>
             </div>
         </div>
+        <!--===================================================-->
+        
+       
+        
 
         <div ng-show="currentPage === 'login'">
             <div class="form-container">
@@ -451,7 +457,7 @@
 
     <script>
         angular.module('farmApp', [])
-            .controller('MainController', ['$scope', function ($scope) {
+            .controller('MainController', ['$scope', '$http', function ($scope, $http) {
                 $scope.currentPage = 'home';
                 $scope.cart = [];
                 $scope.showUserProducts = false;
@@ -743,8 +749,43 @@ $scope.submitSubsidyApplication = function() {
 };
 
 
+$scope.register = function () {
+    if (!$scope.registerName || !$scope.registerEmail || !$scope.registerPassword || 
+        !$scope.registerRole) {
+        alert('Please fill all the required details');
+        return;
+    }
+
+    const data = {
+        registerRole: $scope.registerRole,
+        registerName: $scope.registerName,
+        registerEmail: $scope.registerEmail,
+        registerPassword: $scope.registerPassword
+    };
+
+    $http.post('http://localhost/sds/SDS-agrcode/backendprocess/registrationprocess.php', data)
+        .then(function (response) {
+            alert(response.data.message); // Show response from PHP
+            if (response.data.status === "success") {
+                $scope.navigate('login');
+            }
+        }, function (error) {
+            alert('Registration failed!');
+            console.error(error);
+        });
+};
+ 
+
+
+
+
+
+       
+
+
             }]);
+
+            
     </script>
 </body>
 </html>
-j
