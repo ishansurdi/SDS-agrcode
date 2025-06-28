@@ -312,6 +312,7 @@
                 <select ng-model="registerRole">
                     <option value="user">User</option>
                     <option value="farmer">Farmer</option>
+                    <!-- <option value="admin">Admin</option> -->
                 </select>
                 <label>Name:</label>
                 <input type="text" placeholder="Name" ng-model="registerName">
@@ -329,22 +330,28 @@
        
         
 
-        <div ng-show="currentPage === 'login'">
-            <div class="form-container">
-                <h2>Login</h2>
-                <label>Role:</label>
-                <select ng-model="loginRole">
-                    <option value="user">User</option>
-                    <option value="farmer">Farmer</option>
-                    <option value="admin">Admin</option>
-                </select>
-                <label>E-mail</label>
-                <input type="text" placeholder ="Email" ng-model="loginEmail">
-                <label>Password:</label>
-                <input type="password" placeholder="Password" ng-model="loginPassword">
-                <button ng-click="login()">Login</button>
-            </div>
-        </div>
+       <div ng-show="currentPage === 'login'">
+    <div class="form-container">
+        <h2>Login</h2>
+        <form ng-submit="login()">
+            <label>Role:</label>
+            <select ng-model="loginRole" required>
+                <option value="user">User</option>
+                <option value="farmer">Farmer</option>
+                <option value="admin">Admin</option>
+            </select>
+
+            <label>E-mail</label><br><br>
+            <input type="email" placeholder="Email" ng-model="loginEmail" required><br><br>
+
+            <label>Password:</label><br><br>
+            <input type="password" placeholder="Password" ng-model="loginPassword" required>
+
+            <button type="submit">Login</button>
+        </form>
+    </div>
+</div>
+
 
         <div ng-show="currentPage === 'cart'">
             <h2>Shopping Cart</h2>
@@ -774,7 +781,47 @@ $scope.register = function () {
             console.error(error);
         });
 };
- 
+
+$scope.login = function () {
+    if (!$scope.loginEmail || !$scope.loginPassword || !$scope.loginRole) {
+        alert('Please fill all the fields.');
+        return;
+    }
+
+    const data = {
+        loginEmail: $scope.loginEmail,
+        loginPassword: $scope.loginPassword,
+        loginRole: $scope.loginRole
+    };
+
+    $http.post('http://localhost/sds/SDS-agrcode/backendprocess/loginprocess.php', data)
+        .then(function (response) {
+            console.log('Login Response:', response.data);
+            if (response.data.status === "success") {
+                alert('Login Successful!');
+
+                // Redirect based on role
+                if ($scope.loginRole === 'admin') {
+                    window.location.href = './pages/adminportal.html';
+                } else if ($scope.loginRole === 'user') {
+                    window.location.href = './pages/userportal.html';
+                } else if ($scope.loginRole === 'farmer') {
+                    window.location.href = './pages/farmerportal.html';
+                } else {
+                    alert('Unknown role. Redirecting to home.');
+                    $scope.currentPage = 'home';
+                }
+
+            } else {
+                alert(response.data.message);
+            }
+        }, function (error) {
+            alert('Login request failed!');
+            console.error(error);
+        });
+};
+
+
 
 
 

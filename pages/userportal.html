@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farmers' Ecommerce</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <link rel="stylesheet" href="../css/main.css">
+</head>
+<body ng-app="farmApp" ng-controller="MainController">
+    <header>
+        <h1>Agri-connect</h1>
+        <p>Nurturing Nature, Empowering Farmers</p>
+    </header>
+    <nav>
+        <a ng-click="navigate('home')">Home</a>
+        <a ng-click="navigate('products')">Products</a>
+        <!-- <a ng-click="navigate('subsidy')">Subsidy Info</a> -->
+        <!-- <a ng-click="navigate('cropManual')">Crop Manual</a> -->
+        <!-- <a ng-click="navigate('login')">Login</a>
+        <a ng-click="navigate('register')">Register</a> -->
+        <!-- <a ng-click="navigate('sell')">Sell Products</a> -->
+        <a ng-click="navigate('cart')">Cart ({{ cart.length }})</a>
+    </nav>
+
+    <!-- /* homepage content */ -->
+
+    <div class="container">
+        <div ng-show="currentPage === 'home'">
+            <h2>Welcome to KrushiVal</h2>
+            <h3>User Portal</h3>
+            <p>Empowering Farmers and Connecting Consumers</p>
+        </div>
+
+        <div ng-show="currentPage === 'products'">
+            <h2>Products</h2>
+            <button ng-click="toggleUserProducts()">User Products</button>
+
+<div ng-show="showUserProducts">
+    <h3>User Products</h3>
+    <div class="category-buttons">
+        <button ng-repeat="(category, items) in products.users" ng-click="selectUserCategory(category)">
+            {{ category }}
+        </button>
+    </div>
+    <div class="product-container">
+        <div class="product" ng-repeat="product in products.users[selectedUserCategory]">
+            <img ng-src="{{ product.image }}" alt="{{ product.name }}">
+            <h4>{{ product.name }}</h4>
+            <p>Price: ₹{{ product.price }}</p>
+            <button ng-click="addToCart(product)">Add to Cart</button>
+            <button ng-click="showCheckoutForm(product)">Buy Now</button>
+        </div>
+    </div>
+</div>
+        </div>
+       
+
+
+        <div ng-show="currentPage === 'cart'">
+            <h2>Shopping Cart</h2>
+            <div class="product-container" ng-if="cart.length > 0">
+                <div class="product" ng-repeat="product in cart">
+                    <img ng-src="{{ product.image }}" alt="{{ product.name }}">
+                    <h4>{{ product.name }}</h4>
+                    <p>Price: ₹{{ product.price }}</p>
+                    <p>Quantity: 
+                        <button ng-click="decreaseQuantity(product)">-</button>
+                        {{ product.quantity }}
+                        <button ng-click="increaseQuantity(product)">+</button>
+                    </p>
+                    <button ng-click="removeFromCart(product)">Remove</button>
+                    <button ng-click="showCheckoutForm(product)">Buy Now</button><br>
+                </div>
+                <h3>Total: ₹{{ getTotalPrice() }}</h3>
+            </div>
+        </div>
+
+        <div class="modal" ng-show="showCheckout">
+            <div class="modal-content">
+                <h2>Checkout</h2>
+                <p>Product: <strong>{{ selectedProduct.name }}</strong></p>
+                <p>Price: ₹{{ selectedProduct.price }}</p>
+                <input type="text" placeholder="Full Name" ng-model="checkoutName" required>
+                <input type="text" placeholder="Address" ng-model="checkoutAddress" required>
+                <input type="text" placeholder="Contact Number" ng-model="checkoutContact" required>
+                <input type="text" placeholder="Email" ng-model="checkoutemail" required>
+                
+                <label>Payment Mode:</label>
+                <select ng-model="checkoutPaymentMode">
+                    <option value="COD">Cash on Delivery</option>
+                    <option value="UPI">UPI</option>
+                    <option value="Card">Credit/Debit Card</option>
+                </select>
+                <input type="text" placeholder="Enter UPI ID" ng-model="checkoutUPIID" ng-show="checkoutPaymentMode === 'UPI'" required>
+
+                <div ng-show="checkoutPaymentMode === 'Card'">
+                    <input type="text" placeholder="Card Number" ng-model="checkoutCardNumber" required>
+                    <input type="text" placeholder="Card Expiry (MM/YY)" ng-model="checkoutCardExpiry" required>
+                    <input type="password" placeholder="CVV" ng-model="checkoutCardCVV" required>
+                </div>
+
+                <button ng-click="confirmPurchase()">Confirm Purchase</button>
+                <button class="close-btn" ng-click="cancelCheckout()">Cancel</button>
+            </div>
+        </div>
+    </div>
+    
+        
+    
+
+    <script>
+    angular.module('farmApp', [])
+        .controller('MainController', ['$scope', '$http', function ($scope, $http) {
+
+            // =================== Initialization ===================
+            $scope.products = { users: {} }; // initialize
+
+            
+            
+
+            $scope.cart = [];
+            $scope.currentPage = 'home';
+            $scope.selectedUserCategory = '';
+            $scope.selectedFarmerCategory = '';
+            $scope.showUserProducts = false;
+            $scope.showFarmerProducts = false;
+            $scope.showCheckout = false;
+
+            // ============== Fetch Products from Backend ==============
+           // Function to load user products dynamically
+$scope.loadUserProducts = function () {
+    $http.get('http://localhost/sds/SDS-agrcode/backendprocess/get_products.php?seller_type=user')
+        .then(function (response) {
+            if (response.data.status === "success") {
+                $scope.products.users = response.data.products;
+                const categories = Object.keys(response.data.products);
+                if (categories.length > 0) {
+                    $scope.selectedUserCategory = categories[0];
+                }
+                $scope.showUserProducts = true;  // Show products once loaded
+            } else {
+                alert("Failed to load user products: " + response.data.message);
+            }
+        }, function (error) {
+            console.error("Error fetching user products:", error);
+            alert("Error connecting to server.");
+        });
+};
+
+// Function to toggle user products display
+$scope.toggleUserProducts = function () {
+    if (!$scope.showUserProducts) {
+        $scope.loadUserProducts(); // Fetch when first opened
+    } else {
+        $scope.showUserProducts = false; // Hide if already shown
+    }
+};
+
+
+
+
+            // =================== Navigation ===================
+            $scope.navigate = function (page) {
+                $scope.currentPage = page;
+            };
+
+           
+            $scope.toggleUserProducts = function () {
+                if (!$scope.showUserProducts) {
+                    $scope.loadUserProducts(); // Fetch when first opened
+                } else {
+                    $scope.showUserProducts = false; // Hide if already shown
+                }
+            };
+         
+
+            $scope.selectUserCategory = function (category) {
+                $scope.selectedUserCategory = category;
+            };
+
+            $scope.selectFarmerCategory = function (category) {
+                $scope.selectedFarmerCategory = category;
+            };
+
+            // =================== Cart Functions ===================
+            $scope.addToCart = function(product) {
+            let found = $scope.cart.find(item => item.name === product.name);
+            if (found) {
+                found.quantity += 1;
+            } else {
+                $scope.cart.push({ ...product, quantity: 1 });
+            }
+            alert(product.name + ' has been added to your cart!');
+            
+            $scope.currentPage = 'cart';
+            // Force Angular digest cycle (optional, just in case)
+            if (!$scope.$$phase) {
+                $scope.$apply();
+            }
+        };
+
+
+            $scope.increaseQuantity = function (product) {
+                product.quantity += 1;
+            };
+
+            $scope.decreaseQuantity = function (product) {
+                if (product.quantity > 1) {
+                    product.quantity -= 1;
+                } else {
+                    $scope.removeFromCart(product);
+                }
+            };
+
+            $scope.removeFromCart = function (product) {
+                let index = $scope.cart.indexOf(product);
+                if (index > -1) {
+                    $scope.cart.splice(index, 1);
+                }
+            };
+
+            $scope.getTotalPrice = function () {
+                return $scope.cart.reduce((total, product) => total + (product.price * product.quantity), 0);
+            };
+
+            // =================== Checkout ===================
+            $scope.showCheckoutForm = function (product) {
+                $scope.selectedProduct = product;
+                $scope.showCheckout = true;
+            };
+
+            $scope.cancelCheckout = function () {
+                $scope.showCheckout = false;
+            };
+
+            $scope.confirmPurchase = function () {
+        const data = {
+            name: $scope.checkoutName,
+            address: $scope.checkoutAddress,
+            contact: $scope.checkoutContact,
+            paymentMode: $scope.checkoutPaymentMode,
+            upiId: $scope.checkoutUPIID || "",
+            cardNumber: $scope.checkoutCardNumber || "",
+            cart: $scope.cart,
+            checkouremail: $scope.checkoutemail  // IMPORTANT: matches PHP
+        };
+
+        console.log("Purchase Data to send:", data);  // debug
+
+        $http.post('http://localhost/sds/SDS-agrcode/backendprocess/save_purchase.php?category=user', data)
+            .then(function (response) {
+                if (response.data.status === "success") {
+                    alert('Purchase Confirmed!');
+                    $scope.showCheckout = false;
+                    $scope.cart = [];
+                } else {
+                    alert('Purchase Failed: ' + response.data.message);
+                }
+            }, function (error) {
+                console.error(error);
+                alert('Error reaching server!');
+            });
+    };
+
+            }]);
+</script>
+
+</body>
+</html>

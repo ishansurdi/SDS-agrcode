@@ -1,0 +1,47 @@
+.user-list-section {
+    padding: 20px;
+    background-color: #f9f9f9;
+}
+
+.table-container {
+    overflow-x: auto;
+}
+
+.styled-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    background-color: #ffffff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.styled-table thead {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.styled-table th,
+.styled-table td {
+    text-align: left;
+    padding: 12px;
+    border-bottom: 1px solid #ddd;
+}
+
+.styled-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+.suspend-btn {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.suspend-btn:hover {
+    background-color: #c0392b;
+}

@@ -1,261 +1,125 @@
 <!DOCTYPE html>
-<html lang="en" ng-app="subsidyApp">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Portal - Subsidy Management</title>
+    <title>Farmers' Ecommerce</title>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f9;
-        }
-
-        h1 {
-            text-align: center;
-            color: #333;
-            margin-top: 30px;
-        }
-
-        form {
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            margin-bottom: 30px;
-        }
-
-        form h3 {
-            color: #333;
-            margin-bottom: 20px;
-            font-size: 1.2em;
-        }
-
-        form label {
-            font-weight: bold;
-            margin-top: 10px;
-            display: inline-block;
-        }
-
-        form input[type="text"],
-        form input[type="number"] {
-            width: 100%;
-            padding: 10px;
-            margin-top: 5px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 1em;
-        }
-
-        form button {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px 15px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1em;
-        }
-
-        form button:hover {
-            background-color: #45a049;
-        }
-
-        hr {
-            margin: 30px 0;
-            border: 0;
-            border-top: 1px solid #ddd;
-        }
-
-        table {
-            width: 90%;
-            margin: 0 auto;
-            border-collapse: collapse;
-            margin-bottom: 40px;
-        }
-
-        table th, table td {
-            padding: 12px 20px;
-            border: 1px solid #ddd;
-            text-align: center;
-        }
-
-        table th {
-            background-color: #4CAF50;
-            color: white;
-        }
-
-        table td button {
-            padding: 5px 10px;
-            background-color: #ff9800;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 0.9em;
-            margin-right: 5px;
-        }
-
-        table td button:hover {
-            background-color: #e68900;
-        }
-
-        table td button:last-child {
-            background-color: #f44336;
-        }
-
-        table td button:last-child:hover {
-            background-color: #d32f2f;
-        }
-    </style>
-    </style>
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/admin.css">
 </head>
-<body ng-controller="SubsidyController">
+<body ng-app="farmApp" ng-controller="farmCtrl">
+    <header>
+        <h1>Agri-connect</h1>
+        <h3>Admin Portal</h3>
+        <p>Nurturing Nature, Empowering Farmers</p>
+    </header>
+    <nav>
+        <a ng-click="navigate('home')">Home</a>
+        <a ng-click="navigate('addSubsidy')">Add Subsidy</a>
+        <a ng-click="navigate('userList')">User List</a>
+    </nav>
 
-    <h1>Manage Subsidies</h1>
+    <!-- /* homepage content */ -->
 
-    <!-- Add New Subsidy -->
-    <form ng-submit="addSubsidy()">
-        <h3>Add New Subsidy</h3>
-        <label>Subsidy Name:</label>
-        <input type="text" ng-model="newSubsidy.name" required><br>
+    <div class="container">
+        <div ng-show="currentPage === 'home'">
+            <h2>Welcome to KrushiVal</h2>
+            
+            <p>Empowering Farmers and Connecting Consumers</p>
+        </div>
+    </div>
+
+    <div ng-show="currentPage === 'addSubsidy'">
+    <h2>Add New Subsidy</h2>
+    <div class="form-container">
+        <label>Name:</label>
+        <input type="text" ng-model="newSubsidy.name">
 
         <label>Amount:</label>
-        <input type="number" ng-model="newSubsidy.amount" required><br>
+        <input type="text" ng-model="newSubsidy.amount">
 
         <label>Description:</label>
-        <input type="text" ng-model="newSubsidy.description" required><br>
+        <textarea ng-model="newSubsidy.description"></textarea>
 
         <label>Eligibility:</label>
-        <input type="text" ng-model="newSubsidy.eligibility" required><br>
+        <textarea ng-model="newSubsidy.eligibility"></textarea>
 
         <label>Category:</label>
-        <input type="text" ng-model="newSubsidy.category" required><br>
+        <input type="text" ng-model="newSubsidy.category">
 
-        <label>Documents Required:</label>
-        <input type="text" ng-model="newSubsidy.documents" required><br>
+        <label>Required Documents:</label>
+        <textarea ng-model="newSubsidy.documents"></textarea>
 
-        <button type="submit">Add Subsidy</button>
-    </form>
+        <label>More Info / Application Link:</label>
+        <input type="text" ng-model="newSubsidy.link">
 
-    <hr>
+        <button ng-click="addSubsidy()">Submit</button>
+    </div>
+</div>
 
-    <!-- Display Subsidies in Table -->
-    <table border="1">
-        <thead>
-            <tr>
-                <th>Subsidy Name</th>
-                <th>Amount</th>
-                <th>Description</th>
-                <th>Eligibility</th>
-                <th>Category</th>
-                <th>Documents Required</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr ng-repeat="subsidy in subsidies">
-                <td>{{ subsidy.name }}</td>
-                <td>{{ subsidy.amount }}</td>
-                <td>{{ subsidy.description }}</td>
-                <td>{{ subsidy.eligibility }}</td>
-                <td>{{ subsidy.category }}</td>
-                <td>{{ subsidy.documents }}</td>
-                <td>
-                    <button ng-click="editSubsidy(subsidy)">Edit</button>
-                    <button ng-click="deleteSubsidy(subsidy)">Delete</button>
-                </td>
-            </tr>
-        </tbody>
-    </table>
 
-    <script>
-        var app = angular.module('subsidyApp', []);
 
-app.controller('SubsidyController', function($scope) {
-    // Initial subsidies data
-    $scope.subsidies = [
-    {
-        name: 'Group Farming Scheme(Gat sheti Yojana)',
-        amount: 6000,
-        description: 'Guidance on the crop pattern and farming techniques.to help individual farmers to collectively shoulder the investment expenditure.',
-        eligibility: ' At least ten farmers.Small and marginal farmers. Residents of maharashtra.',
-        category: 'Agricultural Group farming Schemes.',
-        documents: 'Aadhar, Bank Details, Land Ownership Proof,Joint Farming Agreement',
-    },
-    {
-        name: 'Magel Tyala Shet Tale Yojana',
-        amount: 'Up to 50,000 - 75000',
-        description: 'Provide financial aid for farm pond construction to boost irrigation and crop yield. Helps store rainwater for irrigation in dry seasons',
-        eligibility: 'Resident of maharashtra.Land should be suitable for farm pond construction.',
-        category: 'Water Conservation & Irrigation Schemes.',
-        documents: 'Aadhar, Land Ownership Proof, Bank Details,Site Approval from Agriculture Department.',
-    },
-    {
-        name: 'Dr. Babasaheb Ambedkar Krushi Swavalamban Yojana(Agricultural Self-Reliance Scheme)',
-        amount: '100 % Subsidy limited to (1) New well - Rs. 250000/-, (2) Old well repairing - Rs. 50000/-, (3) Plastification of farm pond - Rs. 100000/-, (4) In well boring - Rs. 20000/-, (5) Pumpset -Rs. 25000/, (6) Electric connection charges - Rs. 10000/-, (7) Micro irrigation 90 % subsidy limited to - Drip Rs. 50000/- or Sprinkler - Rs. 25000/.',
-        description:'Promote self-reliance in farming through irrigation and financial aid.Helps in creating independent water sources.',
-        eligibility: 'Farmer must belong to the Scheduled Caste (SC) category.Must use the funds for approved agricultural development purposes.',
-        category: 'Agricultural Infrastructure & Irrigation Subsidy.',
-        documents: 'Aadhar,SC Caste Certificate,Land Ownership Proof, Bank Details',
-    },
-    {
-        name:'Seed Money Scheme',
-        amount: 'Loan of ₹50,000 to ₹1,00,000 for new businesses',
-        description: '15%-20% of the loan amount is covered by the government. Promotes agriculture-related startups.',
-        eligibility:'Age 18 to 50 years.Should be unemployed or seeking to start a business.Priority given to SC/ST, OBC, minority, and economically weaker sections',
-        category:'Self-Employment & Entrepreneurship Subsidy',
-        documents:'Aadhar,Caste Certificate(if applicable)'
-    },
-    {
-        name:'Birsa Munda Krishi Kranti Yojna',
-        amount: '100 % Subsidy limited to (1) New well - Rs. 250000/-, (2) Old well repairing - Rs. 50000/-, (3) Plastification of farm pond - Rs. 100000/-, (40 Inwell boaring - Rs. 20000/-, (5)Kitchen Garden - Rs. 500/-, (6) Electric connection charges - Rs. 10000/ (7) Micro irrigation 90 % subsidy limited to - Drip Rs. 50000/- or Sprinkler - Rs. 25000/. ',
-        description:'Provide irrigation facilities and increase the income of tribal farmers.Subsidy for drip and sprinkler irrigation systems.Funding for electric connections for irrigation.',
-        eligibility:'Farmer must belong to the Scheduled Tribe (ST) category.Annual family income should be less than ₹1,50,000.Land holding should be between 0.20 hectares to 6 hectares.Farmers from Mumbai, Sindhudurg, Ratnagiri, Satara, Sangli, and Kolhapur districts are not eligible.',
-        category: 'Agricultural Irrigation & Infrastructure Subsidy',
-        documents: 'Aadhaar Card, Land Ownership Proof ,Caste Certificate (for ST category),Bank Account Details,Income Certificate'
-    }
-];
+<div ng-show="currentPage === 'userList'" class="user-list-section">
+    <h2>All Users & Farmers</h2>
+    <div class="table-container">
+        <table class="styled-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Created At</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="user in allUsers">
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.name }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.role }}</td>
+                    <td>{{ user.created_at }}</td>
+                    <td>
+                        <button class="suspend-btn" ng-click="deleteUser(user.id)">Suspend</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
 
-    // Function to add new subsidy
-    $scope.addSubsidy = function() {
-        if ($scope.newSubsidy) {
-            $scope.subsidies.push({
-                name: $scope.newSubsidy.name,
-                amount: $scope.newSubsidy.amount,
-                description: $scope.newSubsidy.description,
-                eligibility: $scope.newSubsidy.eligibility,
-                category: $scope.newSubsidy.category,
-                documents: $scope.newSubsidy.documents
+
+<script>
+angular.module('farmApp', [])
+.controller('farmCtrl', ['$scope', '$http', function($scope, $http) {
+    $scope.currentPage = 'home';
+
+    $scope.navigate = function(page) {
+        $scope.currentPage = page;
+        if (page === 'userList') {
+            $scope.fetchAllUsers();
+        }
+    };
+
+    $scope.newSubsidy = {};
+
+$scope.addSubsidy = function () {
+    $http.post('../backendprocess/add_subsidy.php', $scope.newSubsidy)
+        .then(function (response) {
+            alert(response.data.message);
+            $scope.newSubsidy = {}; // clear form
+        });
+};
+
+
+    $scope.allUsers = [];
+    $scope.fetchAllUsers = function() {
+        $http.get('../backendprocess/get_all_users.php')
+            .then(function(response) {
+                $scope.allUsers = response.data.users;
             });
-            // Reset the form after adding
-            $scope.newSubsidy = {};
-        }
     };
-
-    // Function to edit an existing subsidy
-    $scope.editSubsidy = function(subsidy) {
-        $scope.newSubsidy = angular.copy(subsidy); // Copy subsidy to form for editing
-        // Remove the edited subsidy from the list for update
-        const index = $scope.subsidies.indexOf(subsidy);
-        $scope.subsidies.splice(index, 1);
-    };
-
-    // Function to delete a subsidy
-    $scope.deleteSubsidy = function(subsidy) {
-        const index = $scope.subsidies.indexOf(subsidy);
-        if (index > -1) {
-            $scope.subsidies.splice(index, 1); // Remove subsidy from the list
-        }
-    };
-});
-
-    </script>
-
-</body>
-</html>
+}])
+</script>
