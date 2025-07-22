@@ -18,6 +18,7 @@
         <a ng-click="navigate('home')">Home</a>
         <a ng-click="navigate('addSubsidy')">Add Subsidy</a>
         <a ng-click="navigate('userList')">User List</a>
+        <a ng-click="navigate('transcation')">Transcation</a>
     </nav>
 
     <!-- /* homepage content */ -->
@@ -89,6 +90,11 @@
         </table>
     </div>
 </div>
+
+<div ng-show="currentPage === 'transcation'">
+    <h2>Transcation History</h2>
+    <p>Transcation history will be displayed here.</p>
+    <!-- Placeholder for future content -->
 
 
 <script>
