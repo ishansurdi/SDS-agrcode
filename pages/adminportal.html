@@ -7,6 +7,119 @@
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
     <link rel="stylesheet" href="../css/main.css">
     <link rel="stylesheet" href="../css/admin.css">
+    <style>
+    .transaction-section {
+    background-color: #f4fdf5;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.08);
+    margin: 20px auto;
+    max-width: 1100px;
+    font-family: Arial, sans-serif;
+}
+
+.transaction-section h2 {
+    text-align: center;
+    color: #2e7d32;
+    margin-bottom: 20px;
+}
+
+.date-filter {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.date-filter label {
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.date-filter input[type="date"],
+.date-filter button {
+    padding: 8px 14px;
+    font-size: 15px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+.date-filter button {
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.date-filter button:hover {
+    background-color: #388e3c;
+}
+
+.stats-box {
+    background: #e0f2f1;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+}
+
+.stats-box h3 {
+    margin-bottom: 15px;
+    color: #00695c;
+}
+
+.stats-box ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.stats-box ul li {
+    margin-bottom: 8px;
+    font-size: 16px;
+}
+
+.transactions-table h3 {
+    margin-top: 30px;
+    margin-bottom: 15px;
+    color: #2e7d32;
+}
+
+.transactions-table table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 15px;
+}
+
+.transactions-table th,
+.transactions-table td {
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: center;
+}
+
+.transactions-table th {
+    background-color: #e8f5e9;
+}
+
+.download-section {
+    text-align: center;
+    margin-top: 25px;
+}
+
+.download-section button {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #2196f3;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.download-section button:hover {
+    background-color: #1565c0;
+}
+</style>
 </head>
 <body ng-app="farmApp" ng-controller="farmCtrl">
     <header>
@@ -91,10 +204,130 @@
     </div>
 </div>
 
-<div ng-show="currentPage === 'transcation'">
-    <h2>Transcation History</h2>
-    <p>Transcation history will be displayed here.</p>
-    <!-- Placeholder for future content -->
+<div ng-show="currentPage === 'transcation'" class="transaction-section">
+    <h2>Transaction History</h2>
+
+    <!-- Tabs -->
+    <div style="text-align:center; margin-bottom:20px;">
+        <button ng-class="{'active-tab': tab === 'tillDate'}" ng-click="switchTab('tillDate')">Transactions Till Date</button>
+        <button ng-class="{'active-tab': tab === 'tillNow'}" ng-click="switchTab('tillNow')">Transactions Till Now</button>
+    </div>
+
+    <!-- Till Date Section -->
+    <div ng-if="tab === 'tillDate'">
+        <!-- Date Filter -->
+        <div class="date-filter">
+            <label for="transactionDate">Select Date:</label>
+            <input type="date" id="transactionDate" ng-model="selectedDate">
+            <button ng-click="fetchTransactions()">Search</button>
+        </div>
+
+        <!-- Statistics -->
+        <div ng-if="transactionStats" class="stats-box">
+            <h3>Summary for {{ selectedDate | date:'yyyy-MM-dd' }}</h3>
+            <ul>
+                <li><strong>Total Transactions:</strong> {{ transactionStats.totalTransactions }}</li>
+                <li><strong>Total Profit (₹):</strong> {{ transactionStats.totalProfit }}</li>
+                <li><strong>Top Selling Product:</strong> {{ transactionStats.topProduct }}</li>
+                <li><strong>Average Transaction Value (₹):</strong> {{ transactionStats.avgTransaction }}</li>
+            </ul>
+        </div>
+
+        <!-- Transactions Table -->
+        <div ng-if="transactions.length > 0" class="transactions-table">
+            <h3>Detailed Transactions</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Purchase ID</th>
+                        <th>Product</th>
+                        <th>Category</th>
+                        <th>Qty</th>
+                        <th>Unit Price</th>
+                        <th>Total Price</th>
+                        <th>Buyer</th>
+                        <th>Payment Mode</th>
+                        <th>Purchase Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="t in transactions">
+                        <td>{{ t.purchase_id }}</td>
+                        <td>{{ t.product_name }}</td>
+                        <td>{{ t.category }}</td>
+                        <td>{{ t.quantity }}</td>
+                        <td>₹{{ t.unit_price }}</td>
+                        <td>₹{{ t.total_price }}</td>
+                        <td>{{ t.buyer_name }}</td>
+                        <td>{{ t.payment_mode }}</td>
+                        <td>{{ t.purchase_time }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- PDF Download Button -->
+        <div ng-if="transactions.length > 0" class="download-section">
+            <button ng-click="downloadSummaryPDF()" class="btn">Download Summary PDF</button>
+        </div>
+    </div>
+
+    <!-- Till Now Section -->
+    <div ng-if="tab === 'tillNow'">
+        <div class="stats-box" ng-if="tillNowStats">
+            <h3>Summary Till Now</h3>
+            <ul>
+                <li><strong>Total Transactions:</strong> {{ tillNowStats.totalTransactions }}</li>
+                <li><strong>Total Profit (₹):</strong> {{ tillNowStats.totalProfit }}</li>
+                <li><strong>Top Selling Product:</strong> {{ tillNowStats.topProduct }}</li>
+                <li><strong>Average Transaction Value (₹):</strong> {{ tillNowStats.avgTransaction }}</li>
+            </ul>
+        </div>
+
+        <div class="transactions-table" ng-if="tillNowTransactions.length > 0">
+            <h3>All Transactions Till Now</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Purchase ID</th>
+                        <th>Product</th>
+                        <th>Category</th>
+                        <th>Qty</th>
+                        <th>Unit Price</th>
+                        <th>Total Price</th>
+                        <th>Buyer</th>
+                        <th>Payment Mode</th>
+                        <th>Purchase Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="t in tillNowTransactions">
+                        <td>{{ t.purchase_id }}</td>
+                        <td>{{ t.product_name }}</td>
+                        <td>{{ t.category }}</td>
+                        <td>{{ t.quantity }}</td>
+                        <td>₹{{ t.unit_price }}</td>
+                        <td>₹{{ t.total_price }}</td>
+                        <td>{{ t.buyer_name }}</td>
+                        <td>{{ t.payment_mode }}</td>
+                        <td>{{ t.purchase_time }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="download-section" ng-if="tillNowTransactions.length > 0">
+            <button ng-click="downloadTillNowPDF()" class="btn">Download Till Now PDF</button>
+        </div>
+    </div>
+</div>
+
+
+    <!-- <div class="placeholder">
+        <p>Transaction history will be displayed here.</p>
+    </div> -->
+</div>
+
 
 
 <script>
@@ -127,5 +360,122 @@ $scope.addSubsidy = function () {
                 $scope.allUsers = response.data.users;
             });
     };
+
+    $scope.tab = 'tillDate';  // default selected tab
+
+$scope.switchTab = function(tabName) {
+    $scope.tab = tabName;
+    if (tabName === 'tillNow') {
+        $scope.fetchTillNowTransactions();
+    }
+};
+
+// Fetch transactions by selected date (unchanged)
+$scope.fetchTransactions = function () {
+    if (!$scope.selectedDate) {
+        alert("Please select a date.");
+        return;
+    }
+
+    const selected = new Date($scope.selectedDate);
+    const year = selected.getFullYear();
+    const month = String(selected.getMonth() + 1).padStart(2, '0');
+    const day = String(selected.getDate()).padStart(2, '0');
+    const formattedDate = `${year}-${month}-${day}`;
+
+    $http.post('../backendprocess/get_transaction_by_date.php', {
+        date: formattedDate
+    }).then(function (response) {
+        if (response.data.error) {
+            alert(response.data.error);
+            return;
+        }
+
+        $scope.transactions = response.data.transactions || [];
+
+        // Calculate stats
+        let totalTransactions = $scope.transactions.length;
+        let totalProfit = 0;
+        let productMap = {};
+
+        $scope.transactions.forEach(t => {
+            totalProfit += parseFloat(t.total_price);
+            productMap[t.product_name] = (productMap[t.product_name] || 0) + parseInt(t.quantity);
+        });
+
+        let topProduct = '';
+        let maxQty = 0;
+        for (let product in productMap) {
+            if (productMap[product] > maxQty) {
+                topProduct = product;
+                maxQty = productMap[product];
+            }
+        }
+
+        $scope.transactionStats = {
+            totalTransactions: totalTransactions,
+            totalProfit: totalProfit.toFixed(2),
+            topProduct: topProduct || "N/A",
+            avgTransaction: totalTransactions > 0 ? (totalProfit / totalTransactions).toFixed(2) : 0
+        };
+    }).catch(function () {
+        alert("Error fetching transactions.");
+    });
+};
+
+// Fetch all transactions till now
+$scope.fetchTillNowTransactions = function () {
+    $http.get('../backendprocess/get_all_transactions_till_now.php')
+    .then(function(response) {
+        $scope.tillNowTransactions = response.data.transactions || [];
+
+        // Calculate stats for till now
+        let totalTransactions = $scope.tillNowTransactions.length;
+        let totalProfit = 0;
+        let productMap = {};
+
+        $scope.tillNowTransactions.forEach(t => {
+            totalProfit += parseFloat(t.total_price);
+            productMap[t.product_name] = (productMap[t.product_name] || 0) + parseInt(t.quantity);
+        });
+
+        let topProduct = '';
+        let maxQty = 0;
+        for (let product in productMap) {
+            if (productMap[product] > maxQty) {
+                topProduct = product;
+                maxQty = productMap[product];
+            }
+        }
+
+        $scope.tillNowStats = {
+            totalTransactions: totalTransactions,
+            totalProfit: totalProfit.toFixed(2),
+            topProduct: topProduct || "N/A",
+            avgTransaction: totalTransactions > 0 ? (totalProfit / totalTransactions).toFixed(2) : 0
+        };
+    }).catch(function () {
+        alert("Error fetching transactions.");
+    });
+};
+
+// Download PDF for till date
+$scope.downloadSummaryPDF = function () {
+    const selected = new Date($scope.selectedDate);
+    const year = selected.getFullYear();
+    const month = String(selected.getMonth() + 1).padStart(2, '0');
+    const day = String(selected.getDate()).padStart(2, '0');
+    const formattedDate = `${year}-${month}-${day}`;
+
+    window.location.href = `../backendprocess/generate_summary_pdf.php?date=${formattedDate}`;
+};
+
+// Download PDF for till now
+$scope.downloadTillNowPDF = function () {
+    window.location.href = `../backendprocess/generate_summary_pdf.php?tillNow=1`;
+};
+
+
+
 }])
 </script>

@@ -90,7 +90,7 @@
                 <select ng-model="checkoutPaymentMode">
                     <option value="COD">Cash on Delivery</option>
                     <option value="UPI">UPI</option>
-                    <option value="Card">Credit/Debit Card</option>
+                    <!-- <option value="Card">Credit/Debit Card</option> -->
                 </select>
                 <input type="text" placeholder="Enter UPI ID" ng-model="checkoutUPIID" ng-show="checkoutPaymentMode === 'UPI'" required>
 
@@ -105,6 +105,44 @@
             </div>
         </div>
     </div>
+
+    <div class="modal" ng-show="showReceiptModal">
+    <div class="modal-content" style="max-width: 600px;">
+        <h2>Purchase Receipt</h2>
+        
+        <p><strong>Name:</strong> {{ purchaseReceipt.buyer_name }}</p>
+        <p><strong>Address:</strong> {{ purchaseReceipt.address }}</p>
+        <p><strong>Contact:</strong> {{ purchaseReceipt.contact }}</p>
+        <p><strong>Payment Mode:</strong> {{ purchaseReceipt.payment_mode }}</p>
+        <p><strong>Order Date:</strong> {{ purchaseReceipt.purchase_date }}</p>
+        <hr>
+
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background: #eee;">
+                    <th style="border: 1px solid #ccc; padding: 6px;">Product</th>
+                    <th style="border: 1px solid #ccc; padding: 6px;">Quantity</th>
+                    <th style="border: 1px solid #ccc; padding: 6px;">Unit Price</th>
+                    <th style="border: 1px solid #ccc; padding: 6px;">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="item in purchaseReceipt.items">
+                    <td style="border: 1px solid #ccc; padding: 6px;">{{ item.name }}</td>
+                    <td style="border: 1px solid #ccc; padding: 6px; text-align: center;">{{ item.quantity }}</td>
+                    <td style="border: 1px solid #ccc; padding: 6px; text-align: right;">₹{{ item.price }}</td>
+                    <td style="border: 1px solid #ccc; padding: 6px; text-align: right;">₹{{ (item.quantity * item.price).toFixed(2) }}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 style="text-align: right; margin-top: 15px;">Total Amount: ₹{{ purchaseReceipt.total_amount }}</h3>
+
+        <button ng-click="downloadReceiptPDF()">Download PDF</button>
+        <button class="close-btn" ng-click="closeReceipt()">Close</button>
+    </div>
+</div>
+
     
         
     
@@ -233,6 +271,7 @@ $scope.toggleUserProducts = function () {
             $scope.cancelCheckout = function () {
                 $scope.showCheckout = false;
             };
+            $scope.purchaseReceipt = null;
 
             $scope.confirmPurchase = function () {
         const data = {
@@ -254,6 +293,9 @@ $scope.toggleUserProducts = function () {
                     alert('Purchase Confirmed!');
                     $scope.showCheckout = false;
                     $scope.cart = [];
+
+                     $scope.purchaseReceipt = response.data.receipt;
+                $scope.showReceiptModal = true;
                 } else {
                     alert('Purchase Failed: ' + response.data.message);
                 }
@@ -262,6 +304,39 @@ $scope.toggleUserProducts = function () {
                 alert('Error reaching server!');
             });
     };
+    $scope.closeReceipt = function () {
+    $scope.showReceiptModal = false;
+};
+
+$scope.downloadReceiptPDF = function () {
+    const payload = {
+        receipt: $scope.purchaseReceipt
+    };
+
+    $http({
+    method: 'POST',
+    url: 'http://localhost/sds/SDS-agrcode/backendprocess/generate_recepit.php',
+    data: payload,
+    responseType: 'arraybuffer'
+}).then(function (response) {
+    const blob = new Blob([response.data], { type: 'application/pdf' });
+    const downloadUrl = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = downloadUrl;
+    a.download = 'purchase_receipt.pdf';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(downloadUrl);
+}, function (error) {
+    const decoder = new TextDecoder();
+    const message = decoder.decode(error.data);
+    console.error("PDF Generation Failed. Server says:", message);
+    alert("Failed to generate PDF:\n" + message);
+});
+
+};
+
 
             }]);
 </script>

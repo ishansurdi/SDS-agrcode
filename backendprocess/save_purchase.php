@@ -29,10 +29,6 @@ if (
         exit();
     }
 
-    // DEBUG: Log incoming email
-    error_log("Received email: " . $email);
-
-    // Prepare user fetch
     $stmt = $conn->prepare("SELECT id FROM users WHERE email = ?");
     if (!$stmt) {
         echo json_encode(["status" => "error", "message" => "DB prepare failed: " . $conn->error]);
@@ -44,7 +40,6 @@ if (
     $userFound = $stmt->fetch();
     $stmt->close();
 
-    // DEBUG: Return user found info
     if (!$userFound) {
         echo json_encode([
             "status" => "error",
@@ -54,10 +49,6 @@ if (
         $conn->close();
         exit();
     }
-
-    // User found, $userId holds the ID now
-    // DEBUG:
-    error_log("User ID found: " . $userId);
 
     $conn->begin_transaction();
 
@@ -111,7 +102,44 @@ if (
         }
 
         $conn->commit();
-        echo json_encode(["status" => "success", "message" => "Purchase saved", "userId" => $userId]);
+        // Build receipt data
+    $purchaseDate = date('Y-m-d H:i:s');
+    $items = [];
+    $totalAmount = 0;
+
+    foreach ($data->cart as $item) {
+        $qty = isset($item->quantity) ? $item->quantity : 1;
+        $price = $item->price;
+        $total = $qty * $price;
+
+        $items[] = [
+            "name" => $item->name,
+            "quantity" => $qty,
+            "price" => $price,
+            "total" => $total
+        ];
+
+        $totalAmount += $total;
+    }
+
+    $receipt = [
+        "buyer_name" => $data->name,
+        "address" => $data->address,
+        "contact" => $data->contact,
+        "payment_mode" => $data->paymentMode,
+        "purchase_date" => $purchaseDate,
+        "upi_id" => $upiId,
+        "items" => $items,
+        "total_amount" => $totalAmount
+    ];
+
+    echo json_encode([
+        "status" => "success",
+        "message" => "Purchase saved",
+        "userId" => $userId,
+        "receipt" => $receipt
+    ]);
+        
 
     } catch (Exception $e) {
         $conn->rollback();

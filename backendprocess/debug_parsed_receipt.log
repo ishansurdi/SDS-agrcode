@@ -1,0 +1,30 @@
+Array
+(
+    [buyer_name] => Ishan
+    [address] => India
+    [contact] => 1234567890
+    [payment_mode] => UPI
+    [purchase_date] => 2025-07-27 08:01:34
+    [upi_id] => ishan@okbank
+    [items] => Array
+        (
+            [0] => Array
+                (
+                    [name] => Potato
+                    [quantity] => 1
+                    [price] => 30
+                    [total] => 30
+                )
+
+            [1] => Array
+                (
+                    [name] => Onion
+                    [quantity] => 1
+                    [price] => 60
+                    [total] => 60
+                )
+
+        )
+
+    [total_amount] => 90
+)
